@@ -145,7 +145,8 @@ def assemble_form3(asm_tokens, curr_addr, label_table):
     mc_instr = 0x0
 
     opcode = asm_tokens[0].split('.')[0]
-    if (re.search('l[uengl]?', asm_tokens[0].split('.')[1])):
+#    if (re.search('l[uengl]?', asm_tokens[0].split('.')[1])):
+    if (re.search('l(?!t)', asm_tokens[0].split('.')[1])):
         link = 1
     else:
         link = 0
@@ -182,18 +183,22 @@ def assemble_form3(asm_tokens, curr_addr, label_table):
     # equal
     elif ('e' in asm_tokens[0].split('.')[1]):
         mc_instr &= ~(0x1 << (31-6))
+        mc_instr &= ~(0x0f << (31-19))
         mc_instr |= (0x1 << (31-19))
     # unequal
     elif ('ne' in asm_tokens[0].split('.')[1]):
         mc_instr &= ~(0x1 << (31-6))
+        mc_instr &= ~(0x0f << (31-19))
         mc_instr |= (0x2 << (31-19))
     # greater than
     elif ('gt' in asm_tokens[0].split('.')[1]):
         mc_instr &= ~(0x1 << (31-6))
+        mc_instr &= ~(0x0f << (31-19))
         mc_instr |= (0x3 << (31-19))
     # less than
     elif ('lt' in asm_tokens[0].split('.')[1]):
         mc_instr &= ~(0x1 << (31-6))
+        mc_instr &= ~(0x0f << (31-19))
         mc_instr |= (0x4 << (31-19))
 
     if (link):

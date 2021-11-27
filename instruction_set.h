@@ -44,21 +44,23 @@ enum condition_codes {
     LT = 4
 };
 
-uint32_t and(uint32_t op1, uint32_t op2, uint32_t *gpr, uint32_t data_size);
+extern void set_cond_flags(uint32_t data, uint32_t signed_bit, uint32_t overflow_flag, uint32_t *msr);
 
-uint32_t or(uint32_t op1, uint32_t op2, uint32_t *gpr, uint32_t data_size);
+uint32_t and(uint32_t op1, uint32_t op2, uint32_t *gpr, uint32_t *msr, uint32_t data_size, uint32_t set_condition_flags);
 
-uint32_t shiftl(uint32_t op1, uint32_t op2, uint32_t *gpr, uint32_t data_size);
+uint32_t or(uint32_t op1, uint32_t op2, uint32_t *gpr, uint32_t *msr, uint32_t data_size, uint32_t set_condition_flags);
 
-uint32_t shiftr(uint32_t op1, uint32_t op2, uint32_t *gpr, uint32_t data_size);
+uint32_t shiftl(uint32_t op1, uint32_t op2, uint32_t *gpr, uint32_t *msr, uint32_t data_size, uint32_t set_condition_flags);
 
-uint32_t add(uint32_t op1, uint32_t op2, uint32_t *gpr, uint32_t data_size);
+uint32_t shiftr(uint32_t op1, uint32_t op2, uint32_t *gpr, uint32_t *msr, uint32_t data_size, uint32_t set_condition_flags);
 
-uint32_t multiply(uint32_t op1, uint32_t op2, uint32_t *gpr, uint32_t data_size);
+uint32_t add(uint32_t op1, uint32_t op2, uint32_t *gpr, uint32_t *msr, uint32_t data_size, uint32_t set_condition_flags);
+
+uint32_t multiply(uint32_t op1, uint32_t op2, uint32_t *gpr, uint32_t *msr, uint32_t data_size, uint32_t set_condition_flags);
 
 uint32_t load(uint32_t address, uint8_t *mem, uint32_t *gpr, uint32_t *msr, uint32_t data_size, uint32_t set_condition_flags);
 
-void store(uint32_t address, uint8_t *mem, uint32_t data, uint32_t data_size);
+void store(uint32_t address, uint8_t *mem, uint32_t data, uint32_t *msr, uint32_t data_size, uint32_t set_condition_flags);
 
 void branch(uint32_t condition_code, uint32_t address, uint32_t link, uint32_t msr, uint32_t *ip, uint32_t *lr);
 

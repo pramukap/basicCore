@@ -47,9 +47,8 @@ uint32_t core_decode_execute_complete(core_state *basic_core, uint8_t *mem) {
             } else {
                 addr = gpr_file[regB] + gpr_file[regC]; 
             }
-
-            set_condition_flags = imm1;
             data_size = imm2;
+            set_condition_flags = imm1;
 
             result = load(addr, mem, &gpr_file[regA], msr, data_size, set_condition_flags);
             break;
@@ -61,10 +60,10 @@ uint32_t core_decode_execute_complete(core_state *basic_core, uint8_t *mem) {
             } else {
                 addr = gpr_file[regB] + gpr_file[regC]; 
             }
-
             data_size = imm2;
+            set_condition_flags = imm1;
 
-            store(addr, mem, gpr_file[regA], data_size);
+            store(addr, mem, gpr_file[regA], msr, data_size, set_condition_flags);
             break;
 
         case LD_IMM:
@@ -74,9 +73,8 @@ uint32_t core_decode_execute_complete(core_state *basic_core, uint8_t *mem) {
             } else {
                 addr = gpr_file[regB] + imm12;
             }
-
-            set_condition_flags = imm1;
             data_size = imm2;
+            set_condition_flags = imm1;
 
             dprintf("Address: 0x%08x\n", addr);
             dprintf("Destination reg: %d\n", regA);
@@ -92,11 +90,12 @@ uint32_t core_decode_execute_complete(core_state *basic_core, uint8_t *mem) {
                 addr = gpr_file[regB] + imm12;
             }
             data_size = imm2;
+            set_condition_flags = imm1;
 
             dprintf("Address: 0x%08x\n", addr);
             dprintf("Destination reg: %d\n", regA);
 
-            store(addr, mem, gpr_file[regA], data_size);
+            store(addr, mem, gpr_file[regA], msr, data_size, set_condition_flags);
             break;
 
         case ADD_REG:
@@ -107,8 +106,9 @@ uint32_t core_decode_execute_complete(core_state *basic_core, uint8_t *mem) {
             } 
             op2 = gpr_file[regC];
             data_size = imm2;
+            set_condition_flags = imm1;
 
-            result = add(op1, op2, &gpr_file[regA], data_size);
+            result = add(op1, op2, &gpr_file[regA], msr, data_size, set_condition_flags);
             break;
 
         case MUL_REG:
@@ -119,8 +119,9 @@ uint32_t core_decode_execute_complete(core_state *basic_core, uint8_t *mem) {
             } 
             op2 = gpr_file[regC];
             data_size = imm2;
+            set_condition_flags = imm1;
 
-            result = multiply(op1, op2, &gpr_file[regA], data_size);
+            result = multiply(op1, op2, &gpr_file[regA], msr, data_size, set_condition_flags);
             break;
 
         case ADD_IMM:
@@ -131,8 +132,9 @@ uint32_t core_decode_execute_complete(core_state *basic_core, uint8_t *mem) {
             } 
             op2 = imm12;
             data_size = imm2;
+            set_condition_flags = imm1;
 
-            result = add(op1, op2, &gpr_file[regA], data_size);
+            result = add(op1, op2, &gpr_file[regA], msr, data_size, set_condition_flags);
             break;
 
         case MUL_IMM:
@@ -143,8 +145,9 @@ uint32_t core_decode_execute_complete(core_state *basic_core, uint8_t *mem) {
             } 
             op2 = imm12;
             data_size = imm2;
+            set_condition_flags = imm1;
 
-            result = multiply(op1, op2, &gpr_file[regA], data_size);
+            result = multiply(op1, op2, &gpr_file[regA], msr, data_size, set_condition_flags);
             break;
 
         case AND_REG:    
@@ -155,8 +158,9 @@ uint32_t core_decode_execute_complete(core_state *basic_core, uint8_t *mem) {
             } 
             op2 = gpr_file[regC];
             data_size = imm2;
+            set_condition_flags = imm1;
 
-            result = and(op1, op2, &gpr_file[regA], data_size);
+            result = and(op1, op2, &gpr_file[regA], msr, data_size, set_condition_flags);
             break;
 
         case AND_IMM:    
@@ -167,8 +171,9 @@ uint32_t core_decode_execute_complete(core_state *basic_core, uint8_t *mem) {
             } 
             op2 = imm12;
             data_size = imm2;
+            set_condition_flags = imm1;
 
-            result = and(op1, op2, &gpr_file[regA], data_size);
+            result = and(op1, op2, &gpr_file[regA], msr, data_size, set_condition_flags);
             break;
 
         case OR_REG:    
@@ -179,8 +184,9 @@ uint32_t core_decode_execute_complete(core_state *basic_core, uint8_t *mem) {
             } 
             op2 = gpr_file[regC];
             data_size = imm2;
+            set_condition_flags = imm1;
 
-            result = or(op1, op2, &gpr_file[regA], data_size);
+            result = or(op1, op2, &gpr_file[regA], msr, data_size, set_condition_flags);
             break;
 
         case OR_IMM:    
@@ -191,8 +197,9 @@ uint32_t core_decode_execute_complete(core_state *basic_core, uint8_t *mem) {
             } 
             op2 = imm12;
             data_size = imm2;
+            set_condition_flags = imm1;
 
-            result = or(op1, op2, &gpr_file[regA], data_size);
+            result = or(op1, op2, &gpr_file[regA], msr, data_size, set_condition_flags);
             break;
 
         case SHIFTR_REG: 
@@ -203,8 +210,9 @@ uint32_t core_decode_execute_complete(core_state *basic_core, uint8_t *mem) {
             } 
             op2 = gpr_file[regC];
             data_size = imm2;
+            set_condition_flags = imm1;
 
-            result = shiftr(op1, op2, &gpr_file[regA], data_size);
+            result = shiftr(op1, op2, &gpr_file[regA], msr, data_size, set_condition_flags);
             break;
 
         case SHIFTR_IMM: 
@@ -215,8 +223,9 @@ uint32_t core_decode_execute_complete(core_state *basic_core, uint8_t *mem) {
             } 
             op2 = imm12;
             data_size = imm2;
+            set_condition_flags = imm1;
 
-            result = shiftr(op1, op2, &gpr_file[regA], data_size);
+            result = shiftr(op1, op2, &gpr_file[regA], msr, data_size, set_condition_flags);
             break;
 
         case SHIFTL_REG: 
@@ -227,8 +236,9 @@ uint32_t core_decode_execute_complete(core_state *basic_core, uint8_t *mem) {
             } 
             op2 = gpr_file[regC];
             data_size = imm2;
+            set_condition_flags = imm1;
 
-            result = shiftl(op1, op2, &gpr_file[regA], data_size);
+            result = shiftl(op1, op2, &gpr_file[regA], msr, data_size, set_condition_flags);
             break;
 
         case SHIFTL_IMM: 
@@ -239,8 +249,9 @@ uint32_t core_decode_execute_complete(core_state *basic_core, uint8_t *mem) {
             } 
             op2 = imm12;
             data_size = imm2;
+            set_condition_flags = imm1;
 
-            result = shiftl(op1, op2, &gpr_file[regA], data_size);
+            result = shiftl(op1, op2, &gpr_file[regA], msr, data_size, set_condition_flags);
             break;
 
         case BR:

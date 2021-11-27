@@ -1,10 +1,11 @@
 .addr   0x0
 func_add:
 ld.hs   r1, data
-b.u     skip
-add.h   r3, r1, 0d1
+b.gt    skip
+add.hs  r3, r1, 0d1
+b.lt    loop
 skip:
-add.h   r3, r0, 0d1
+add.h   r4, r0, 0d1
 loop:
 b.u     loop
 
