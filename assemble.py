@@ -2,6 +2,7 @@
 
 import sys, getopt, re
 
+# indirect/register-offset instructions (opcode regA, regB, regC)
 def assemble_form1(asm_tokens):
     mc_instr = 0x0
 
@@ -15,7 +16,7 @@ def assemble_form1(asm_tokens):
     regB = int(asm_tokens[2][1:-1], 10)
     regC = int(asm_tokens[3][1:], 10)
 
-    print("opcode: %s, data_size: %s, set_cond: %d, regA: %s, regB: %s, regC: %s" % (opcode, data_size, set_cond, regA, regB, regC))
+#    print("opcode: %s, data_size: %s, set_cond: %d, regA: %s, regB: %s, regC: %s" % (opcode, data_size, set_cond, regA, regB, regC))
 
     if ('ld' in opcode):
         mc_instr |= (0x0 << (31 - 4))
@@ -48,10 +49,11 @@ def assemble_form1(asm_tokens):
     mc_instr |= (regB << (31 - 19))
     mc_instr |= (regC << (31 - 27))
 
-    print("mc_instr: 0x%08x" % mc_instr)
+#    print("mc_instr: 0x%08x" % mc_instr)
 
     return mc_instr
 
+# immediate-offset instructions (opcode regA, regB, imm12)
 def assemble_form2(asm_tokens, curr_addr, label_table):
     mc_instr = 0x0
 
@@ -79,7 +81,7 @@ def assemble_form2(asm_tokens, curr_addr, label_table):
         label = asm_tokens[2]
         imm12 = 'N/A'
 
-    print("opcode: %s, data_size: %s, set_cond: %d, regA: %s, regB: %s, imm12: %s, label: %s" % (opcode, data_size, set_cond, regA, regB, imm12, label))
+#    print("opcode: %s, data_size: %s, set_cond: %d, regA: %s, regB: %s, imm12: %s, label: %s" % (opcode, data_size, set_cond, regA, regB, imm12, label))
 
     if ('ld' in opcode):
         mc_instr |= (0x1 << (31 - 4))
@@ -137,10 +139,11 @@ def assemble_form2(asm_tokens, curr_addr, label_table):
                 # error
                 print("offset fit error")
 
-    print("mc_instr: 0x%08x" % mc_instr)
+#    print("mc_instr: 0x%08x" % mc_instr)
 
     return mc_instr
 
+# branch
 def assemble_form3(asm_tokens, curr_addr, label_table):
     mc_instr = 0x0
 
@@ -174,7 +177,7 @@ def assemble_form3(asm_tokens, curr_addr, label_table):
 
     link_and_cond = asm_tokens[0].split('.')[1] 
 
-    print("opcode: %s, link: %d, link_and_cond: %s, regA: %s, imm12: %s, label: %s" % (opcode, link, link_and_cond, regA, imm12, label))
+#    print("opcode: %s, link: %d, link_and_cond: %s, regA: %s, imm12: %s, label: %s" % (opcode, link, link_and_cond, regA, imm12, label))
 
     # unconditional
     if ('u' in asm_tokens[0].split('.')[1]):
@@ -234,10 +237,11 @@ def assemble_form3(asm_tokens, curr_addr, label_table):
                 # error
                 print("offset fit error")
 
-    print("mc_instr: 0x%08x" % mc_instr)
+#    print("mc_instr: 0x%08x" % mc_instr)
 
     return mc_instr
 
+# system-call
 def assemble_form4(asm_tokens):
     mc_instr = 0x0
 
@@ -250,7 +254,7 @@ def assemble_form4(asm_tokens):
     elif (re.search('^-?0x', asm_tokens[1])):
         imm4 = int(re.sub("0x", "", asm_tokens[1]), 16)
 
-    print("opcode: %s, imm4: %s" % (opcode, imm4))
+#    print("opcode: %s, imm4: %s" % (opcode, imm4))
     
     if ('sc' in opcode):
         mc_instr |= (0x11 << (31 - 4))
@@ -260,7 +264,7 @@ def assemble_form4(asm_tokens):
     else:
         print("sc vector fit error")
 
-    print("mc_instr: 0x%08x" % mc_instr)
+#    print("mc_instr: 0x%08x" % mc_instr)
 
     return mc_instr
 
@@ -283,11 +287,12 @@ def assemble_instr(asm_instr, curr_addr, label_table):
         
     return mc_instr
 
-print("Basic Core Assembler")
+print("// Basic Core Assembler")
 
 input_file = ''
 output_file = ''
 
+# Get args
 try:
     opts, args = getopt.getopt(sys.argv[1:], "hi:o:")
 except getopt.error as err:
@@ -312,13 +317,11 @@ for opt, arg in opts:
 #print("Input file: %s, Output file: %s" % (input_file, output_file))
 
 asm_file = open(input_file, 'r')
-
 asm_code = asm_file.readlines()
 asm_file.close()
 
 # first pass
-# process macros, collect (labels, address) pairs
-# instructions like 
+# process macros: collect (labels, address) pairs, collect data values
 addr = 0x0
 labels = {}
 program = []
@@ -331,18 +334,19 @@ while i < len(asm_code):
     line.lower()
     tokens = line.split()
 
-    print("line: %s" % line.split('\n')[0])
-    print("addr: 0x%08d" % addr)
+#    print("line: %s" % line.split('\n')[0])
+#    print("addr: 0x%08d" % addr)
 
     # macros
     # check for empty line
     if (line == "\n"):
-        print("empty line")
+        pass
+#        print("empty line")
     # labels
     elif (':' in line):
         label = line.split(':')[0]
         labels.update({label: addr}); 
-        print("label: %s" % label)
+#        print("label: %s" % label)
     # addresses
     elif ('.addr' in line):
         if (re.search('^0b', tokens[1])):
@@ -357,7 +361,7 @@ while i < len(asm_code):
 
         labels.update({"addr_label_" + str(i): addr})
         asm_code[i] += "#addr_label_" + str(i)
-        print("addr: 0x%08x" % addr)
+#        print("addr: 0x%08x" % addr)
     # data
     elif (('.byte' in tokens[0]) or ('.hword' in tokens[0]) or ('.word' in tokens[0])):
         if (re.search('^0b', tokens[1])):
@@ -370,16 +374,19 @@ while i < len(asm_code):
             # error - improperly defined data
             print("improperly defined data error")
 
-        print("data: %d" % data)
+#        print("data: %d" % data)
     
         if ('.byte' in tokens[0]):
+            program.append(("// byte", 0)) # disassmbly hint
             program.append((addr, data))
             addr +=1
         elif ('.hword' in tokens[0]):
+            program.append(("// hword", 0)) # disassembly hint
             program.append((addr, (data >> 8) & 0x0ff))
             program.append((addr + 1, data & 0x0ff))
             addr +=2
         elif ('.word' in tokens[0]):
+            program.append(("// word", 0)) # disassembly hint
             program.append((addr, (data >> 24) & 0x0ff))
             program.append((addr + 1, (data >> 16) & 0x0ff))
             program.append((addr + 2, (data >> 8) & 0x0ff))
@@ -391,8 +398,10 @@ while i < len(asm_code):
 
     i += 1
 
-print(labels)
+# print(labels)
 
+# second pass
+# process instructions
 addr = 0x0
 for line in asm_code:
     dec_val = 0
@@ -404,7 +413,8 @@ for line in asm_code:
     # macros
     # check for empty line
     if (line == "\n"):
-        print("empty line")
+        pass
+#        print("empty line")
     # labels
     elif (':' in line):
         label = line.split(':')[0]
@@ -424,11 +434,16 @@ for line in asm_code:
     # instruction
     else:
         instr = assemble_instr(line, addr, labels)
+        program.append(("// instr", 0)) # disassembly hint
         program.append((addr, (instr >> 24) & 0x0ff))
         program.append((addr + 1, (instr >> 16) & 0x0ff))
         program.append((addr + 2, (instr >> 8) & 0x0ff))
         program.append((addr + 3, instr & 0x0ff))
         addr += 4
 
+# print resulting machine code as C array entry assignments
 for byte_data in program:
-    print("mem[0x%04x] = 0x%02x;" % byte_data)
+    if ("//" in str(byte_data[0])):
+        print("%s" % byte_data[0])
+    else:
+        print("mem[0x%04x] = 0x%02x;" % byte_data)
