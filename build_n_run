@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+bc_asm_file=$1;
+bc_mc_file=${bc_asm_file:0:-2}".mc";
+bc_disasm_file=${bc_asm_file:0:-2}".dis";
+
+# Clear build directory
+echo "Cleaning build directory"
+eval "make clean"
+
+# Build basic core asm program
+echo "Building basic core assembly program"
+eval "python2.7 tools/assemble.py -i bc_src/$bc_asm_file | tee bc_build/$bc_mc_file"
+eval "python2.7 tools/disassemble.py -i bc_build/$bc_mc_file | tee bc_build/$bc_disasm_file"
+
+# Build basic core simulator
+echo "Building basic core simulator"
+eval "cp Makefile build/"
+eval "cp src/* build/"
+eval "sed -i '/insert program here/ r bc_build/$bc_mc_file' build/main.c"
+eval "cd build && make debug"
+
+
+

@@ -1,4 +1,4 @@
-#! /usr/bin/python2.7
+#! /usr/bin/env python2.7
 
 import sys, getopt, re
 
@@ -95,7 +95,7 @@ def disasm_form3(instr):
 
     asm_instr = ""
     if (opcode == 0x10):
-        asm_instr += "br." 
+        asm_instr += "b." 
 
     if (link == 1):
         asm_instr += "l"     

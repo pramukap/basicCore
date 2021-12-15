@@ -114,7 +114,7 @@ def assemble_form2(asm_tokens, curr_addr, label_table):
     mc_instr |= (regB << (31 - 19))
 
     if label == 'N/A':
-        mc_instr |= (imm12 << (31 - 31))
+        mc_instr |= ((imm12 & 0x0fff) << (31 - 31))
     else:
         # check if valid label
         if (label_table[label] == None):
@@ -183,16 +183,16 @@ def assemble_form3(asm_tokens, curr_addr, label_table):
     if ('u' in asm_tokens[0].split('.')[1]):
         mc_instr |= (0x1 << (31-6))
         mc_instr &= ~(0x0f << (31-19))
-    # equal
-    elif ('e' in asm_tokens[0].split('.')[1]):
-        mc_instr &= ~(0x1 << (31-6))
-        mc_instr &= ~(0x0f << (31-19))
-        mc_instr |= (0x1 << (31-19))
     # unequal
     elif ('ne' in asm_tokens[0].split('.')[1]):
         mc_instr &= ~(0x1 << (31-6))
         mc_instr &= ~(0x0f << (31-19))
         mc_instr |= (0x2 << (31-19))
+    # equal
+    elif ('e' in asm_tokens[0].split('.')[1]):
+        mc_instr &= ~(0x1 << (31-6))
+        mc_instr &= ~(0x0f << (31-19))
+        mc_instr |= (0x1 << (31-19))
     # greater than
     elif ('gt' in asm_tokens[0].split('.')[1]):
         mc_instr &= ~(0x1 << (31-6))
@@ -212,12 +212,12 @@ def assemble_form3(asm_tokens, curr_addr, label_table):
     mc_instr |= (regA << (31 - 11))
 
     if label == 'N/A':
-        mc_instr |= (imm12 << (31 - 31))
+        mc_instr |= ((imm12 & 0x0fff) << (31 - 31))
     else:
         # check if valid label
         if (label_table[label] == None):
             # error
-            print("check valid label error")
+            print("invalid label error")
         else:
             label_addr = label_table[label]
             offset = label_addr - curr_addr
@@ -276,10 +276,10 @@ def assemble_instr(asm_instr, curr_addr, label_table):
     if ((len(asm_tokens) == 2) and (re.search('^0[bdx]', asm_tokens[1]))):
         mc_instr = assemble_form4(asm_tokens)
     # form 3: <op regA, imm12>, <op label>
-    elif ((len(asm_tokens) == 2) or (len(asm_tokens) == 3 and (re.search('^0[bdx]', asm_tokens[2])))):
+    elif ((len(asm_tokens) == 2) or (len(asm_tokens) == 3 and (re.search('-?^0[bdx]', asm_tokens[2])))):
         mc_instr = assemble_form3(asm_tokens, curr_addr + 4, label_table)
     # form 2: <op regA, regB, imm12>, <op regA, label>
-    elif ((len(asm_tokens) == 3) or (len(asm_tokens) == 4 and (re.search('^0[bdx]', asm_tokens[3])))):
+    elif ((len(asm_tokens) == 3) or (len(asm_tokens) == 4 and (re.search('^-?0[bdx]', asm_tokens[3])))):
         mc_instr = assemble_form2(asm_tokens, curr_addr + 4, label_table)
     # form 1: <op regA, regB, regC>
     elif ((len(asm_tokens) == 4)):
@@ -290,31 +290,28 @@ def assemble_instr(asm_instr, curr_addr, label_table):
 print("// Basic Core Assembler")
 
 input_file = ''
-output_file = ''
 
 # Get args
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "hi:o:")
+    opts, args = getopt.getopt(sys.argv[1:], "hi:")
 except getopt.error as err:
     print(str(err))
-    print("Usage: assemble.py -i <input_file> -o <output_file>")
+    print("Usage: assemble.py -i <input_file>")
     sys.exit()
 
 if len(opts) == 0:
     print("Error: No args provided")
-    print("Usage: assemble.py -i <input_file> -o <output_file>")
+    print("Usage: assemble.py -i <input_file>")
     sys.exit()
 
 for opt, arg in opts:
     if opt == "-h":
-        print("Usage: assemble.py -i <input_file> -o <output_file>")
+        print("Usage: assemble.py -i <input_file>")
         sys.exit()
     elif opt == "-i":
         input_file = arg
-    elif opt == "-o":
-        output_file = arg
 
-#print("Input file: %s, Output file: %s" % (input_file, output_file))
+#print("Input file: %s" % input_file)
 
 asm_file = open(input_file, 'r')
 asm_code = asm_file.readlines()
@@ -332,16 +329,21 @@ while i < len(asm_code):
     instr = 0x0
 
     line.lower()
+    line = re.sub("^\s*", "", line)
     tokens = line.split()
 
 #    print("line: %s" % line.split('\n')[0])
 #    print("addr: 0x%08d" % addr)
+#    print(tokens)
 
     # macros
     # check for empty line
-    if (line == "\n"):
+    if (line == "\n" or len(line) == 0):
         pass
 #        print("empty line")
+    # comments
+    elif ('//' in line):
+        pass
     # labels
     elif (':' in line):
         label = line.split(':')[0]
@@ -408,13 +410,18 @@ for line in asm_code:
     instr = 0x0
 
     line.lower()
+    line = re.sub("^\s*", "", line)
     tokens = line.split()
+#    print(tokens)
 
     # macros
     # check for empty line
-    if (line == "\n"):
+    if (line == "\n" or len(line) == 0):
         pass
 #        print("empty line")
+    # comments
+    elif ('//' in line):
+        pass
     # labels
     elif (':' in line):
         label = line.split(':')[0]

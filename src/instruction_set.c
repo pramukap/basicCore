@@ -1,6 +1,6 @@
 #include "instruction_set.h"
 
-inline void set_cond_flags(uint32_t data, uint32_t signed_bit, uint32_t overflow_flag, uint32_t *msr) {
+void set_cond_flags(uint32_t data, uint32_t signed_bit, uint32_t overflow_flag, uint32_t *msr) {
     uint32_t condition_flags = 0; 
 
     // zero
@@ -30,14 +30,14 @@ uint32_t and(uint32_t op1, uint32_t op2, uint32_t *gpr, uint32_t *msr, uint32_t 
 
     switch (data_size) {
         case BYTE:
-            result = (op1 & 0x0ff) & (op2 & 0x0ff);
+            result = (uint8_t)(op1 & 0x0ff) & (uint8_t)(op2 & 0x0ff);
             signed_bit = (result >> 7) & 0x01;
             overflow_flag = ((result >> 8) > 0);
             result &= 0x0ff;
             break;
 
         case HALFWORD:
-            result = (op1 & 0x0ffff) & (op2 & 0x0ffff);
+            result = (uint16_t)(op1 & 0x0ffff) & (uint16_t)(op2 & 0x0ffff);
             signed_bit = (result >> 15) & 0x01;
             overflow_flag = ((result >> 16) > 0);
             result &= 0x0ffff;
@@ -71,14 +71,14 @@ uint32_t or(uint32_t op1, uint32_t op2, uint32_t *gpr, uint32_t *msr, uint32_t d
 
     switch (data_size) {
         case BYTE:
-            result = (op1 & 0x0ff) | (op2 & 0x0ff);
+            result = (uint8_t)(op1 & 0x0ff) | (uint8_t)(op2 & 0x0ff);
             signed_bit = (result >> 7) & 0x01;
             overflow_flag = ((result >> 8) > 0);
             result &= 0x0ff;
             break;
 
         case HALFWORD:
-            result = (op1 & 0x0ffff) | (op2 & 0x0ffff);
+            result = (uint16_t)(op1 & 0x0ffff) | (uint16_t)(op2 & 0x0ffff);
             signed_bit = (result >> 15) & 0x01;
             overflow_flag = ((result >> 16) > 0);
             result &= 0x0ffff;
@@ -112,14 +112,14 @@ uint32_t shiftl(uint32_t op1, uint32_t op2, uint32_t *gpr, uint32_t *msr, uint32
 
     switch (data_size) {
         case BYTE:
-            result = (op1 & 0x0ff) << (op2 & 0x0ff);
+            result = (uint8_t)(op1 & 0x0ff) << (uint8_t)(op2 & 0x0ff);
             signed_bit = (result >> 7) & 0x01;
             overflow_flag = ((result >> 8) > 0);
             result &= 0x0ff;
             break;
 
         case HALFWORD:
-            result = (op1 & 0x0ffff) << (op2 & 0x0ffff);
+            result = (uint16_t)(op1 & 0x0ffff) << (uint16_t)(op2 & 0x0ffff);
             signed_bit = (result >> 15) & 0x01;
             overflow_flag = ((result >> 16) > 0);
             result &= 0x0ffff;
@@ -153,14 +153,14 @@ uint32_t shiftr(uint32_t op1, uint32_t op2, uint32_t *gpr, uint32_t *msr, uint32
 
     switch (data_size) {
         case BYTE:
-            result = (op1 & 0x0ff) >> (op2 & 0x0ff);
+            result = (uint8_t)(op1 & 0x0ff) >> (uint8_t)(op2 & 0x0ff);
             signed_bit = (result >> 7) & 0x01;
             overflow_flag = ((result >> 8) > 0);
             result &= 0x0ff;
             break;
 
         case HALFWORD:
-            result = (op1 & 0x0ffff) >> (op2 & 0x0ffff);
+            result = (uint16_t)(op1 & 0x0ffff) >> (uint16_t)(op2 & 0x0ffff);
             signed_bit = (result >> 15) & 0x01;
             overflow_flag = ((result >> 16) > 0);
             result &= 0x0ffff;
@@ -194,14 +194,14 @@ uint32_t add(uint32_t op1, uint32_t op2, uint32_t *gpr, uint32_t *msr, uint32_t 
 
     switch (data_size) {
         case BYTE:
-            sum = (op1 & 0x0ff) + (op2 & 0x0ff);
+            sum = (uint8_t)(op1 & 0x0ff) + (uint8_t)(op2 & 0x0ff);
             signed_bit = (sum >> 7) & 0x01;
             overflow_flag = ((sum >> 8) > 0);
             sum &= 0x0ff;
             break;
 
         case HALFWORD:
-            sum = (op1 & 0x0ffff) + (op2 & 0x0ffff);
+            sum = (uint16_t)(op1 & 0x0ffff) + (uint16_t)(op2 & 0x0ffff);
             signed_bit = (sum >> 15) & 0x01;
             overflow_flag = ((sum >> 16) > 0);
             sum &= 0x0ffff;
@@ -235,14 +235,14 @@ uint32_t multiply(uint32_t op1, uint32_t op2, uint32_t *gpr, uint32_t *msr, uint
 
     switch (data_size) {
         case BYTE:
-            product = (op1 & 0x0ff) * (op2 & 0x0ff);
+            product = (uint8_t)(op1 & 0x0ff) * (uint8_t)(op2 & 0x0ff);
             signed_bit = (product >> 7) & 0x01;
             overflow_flag = ((product >> 8) > 0);
             product &= 0x0ff;
             break;
 
         case HALFWORD:
-            product = (op1 & 0x0ffff) * (op2 & 0x0ffff);
+            product = (uint16_t)(op1 & 0x0ffff) * (uint16_t)(op2 & 0x0ffff);
             signed_bit = (product >> 15) & 0x01;
             overflow_flag = ((product >> 16) > 0);
             product &= 0x0ffff;
@@ -276,7 +276,7 @@ uint32_t load(uint32_t address, uint8_t *mem, uint32_t *gpr, uint32_t *msr, uint
 
     switch (data_size) {
         case BYTE:
-            data |= mem[address];
+            data = mem[address];
             signed_bit = data >> 7;
             break;
 

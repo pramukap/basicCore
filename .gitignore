@@ -1,4 +1,3 @@
-scratch
-basic_core
-*.mc
+build/
+bc_build/
 .*.swp

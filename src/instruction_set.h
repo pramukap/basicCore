@@ -44,7 +44,7 @@ enum condition_codes {
     LT = 4
 };
 
-extern void set_cond_flags(uint32_t data, uint32_t signed_bit, uint32_t overflow_flag, uint32_t *msr);
+void set_cond_flags(uint32_t data, uint32_t signed_bit, uint32_t overflow_flag, uint32_t *msr);
 
 uint32_t and(uint32_t op1, uint32_t op2, uint32_t *gpr, uint32_t *msr, uint32_t data_size, uint32_t set_condition_flags);
 

@@ -34,7 +34,7 @@ uint32_t core_decode_execute_complete(core_state *basic_core, uint8_t *mem) {
 
     // sign-extend imm12
     if (imm12 >> 11) {
-        imm12 |= (~imm12 & ~0x0fff);
+        imm12 |= ~0x0fff;
     }
 
     dprintf("opcode: %d\n", opcode);
@@ -130,7 +130,12 @@ uint32_t core_decode_execute_complete(core_state *basic_core, uint8_t *mem) {
             } else {
                 op1 = gpr_file[regB];
             } 
-            op2 = imm12;
+            // sign-extend
+            if (imm12 >> 11) {
+                op2 = imm12 | ~0x0fff;
+            } else {
+                op2 = imm12;
+            }
             data_size = imm2;
             set_condition_flags = imm1;
 
