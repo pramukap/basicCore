@@ -1,6 +1,14 @@
 #!/usr/bin/env bash
 
-bc_asm_file=$1;
+# Check args
+if [ $# -ne 2 ] 
+then
+    echo "Usage: build_n_run <debug/ndebug> <test case file>"
+    exit
+fi
+
+enable_debug=$1;
+bc_asm_file=$2;
 bc_mc_file=${bc_asm_file:0:-2}".mc";
 bc_disasm_file=${bc_asm_file:0:-2}".dis";
 
@@ -32,7 +40,12 @@ echo "----------------------------"
 eval "cp Makefile build/"
 eval "cp src/* build/"
 eval "sed -i '/insert program here/ r bc_build/$bc_mc_file' build/main.c"
-eval "cd build && make debug"
+if [ $1 == "ndebug" ] 
+then
+    eval "cd build && make"
+else
+    eval "cd build && make debug"
+fi
 # Check if simulator compiled succesfully
 if [ "$?" -ne 0 ] 
 then
