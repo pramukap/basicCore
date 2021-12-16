@@ -5,28 +5,28 @@
 
 enum opcodes {
 // memory access
-    LD_REG,     // 0
-    LD_IMM,     // 1
-    ST_REG,     // 2
-    ST_IMM,     // 3
+    LD_REG = 1,     
+    LD_IMM = 2,     
+    ST_REG = 3,     
+    ST_IMM = 4,     
 // arithmetic
-    ADD_REG,    // 4
-    ADD_IMM,    // 5
-    MUL_REG,    // 6
-    MUL_IMM,    // 7
+    ADD_REG = 5,    
+    ADD_IMM = 6,    
+    MUL_REG = 7,    
+    MUL_IMM = 8,    
 // bitwise logical
-    AND_REG,    // 8 
-    AND_IMM,    // 9 
-    OR_REG,     // 10
-    OR_IMM,     // 11
+    AND_REG = 9,        
+    AND_IMM = 10,       
+    OR_REG = 11,        
+    OR_IMM = 12,        
 // bitwise
-    SHIFTR_REG, // 12
-    SHIFTR_IMM, // 13
-    SHIFTL_REG, // 14
-    SHIFTL_IMM, // 15
+    SHIFTR_REG = 13, 
+    SHIFTR_IMM = 14, 
+    SHIFTL_REG = 15, 
+    SHIFTL_IMM = 16, 
 // program flow
-    BR,         // 16
-    SYS_CALL,   // 17
+    BR = 17,         
+    SYS_CALL = 18,   
     INVALID
 };
 

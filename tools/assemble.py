@@ -19,21 +19,21 @@ def assemble_form1(asm_tokens):
 #    print("opcode: %s, data_size: %s, set_cond: %d, regA: %s, regB: %s, regC: %s" % (opcode, data_size, set_cond, regA, regB, regC))
 
     if ('ld' in opcode):
-        mc_instr |= (0x0 << (31 - 4))
+        mc_instr |= (0x1 << (31 - 4))
     elif ('st' in  opcode):
-        mc_instr |= (0x2 << (31 - 4))
+        mc_instr |= (0x3 << (31 - 4))
     elif ('add' in  opcode):
-        mc_instr |= (0x4 << (31 - 4))
+        mc_instr |= (0x5 << (31 - 4))
     elif ('mul' in  opcode):
-        mc_instr |= (0x6 << (31 - 4))
+        mc_instr |= (0x7 << (31 - 4))
     elif ('and' in  opcode):
-        mc_instr |= (0x8 << (31 - 4))
+        mc_instr |= (0x9 << (31 - 4))
     elif ('or' in  opcode):
-        mc_instr |= (0xa << (31 - 4))
+        mc_instr |= (0xb << (31 - 4))
     elif ('shr' in  opcode):
-        mc_instr |= (0xc << (31 - 4))
+        mc_instr |= (0xd << (31 - 4))
     elif ('shl' in  opcode):
-        mc_instr |= (0xe << (31 - 4))
+        mc_instr |= (0xf << (31 - 4))
 
     if ('b' in data_size):
         mc_instr |= (0x1 << (31 - 15))
@@ -84,21 +84,21 @@ def assemble_form2(asm_tokens, curr_addr, label_table):
 #    print("opcode: %s, data_size: %s, set_cond: %d, regA: %s, regB: %s, imm12: %s, label: %s" % (opcode, data_size, set_cond, regA, regB, imm12, label))
 
     if ('ld' in opcode):
-        mc_instr |= (0x1 << (31 - 4))
+        mc_instr |= (0x2 << (31 - 4))
     elif ('st' in  opcode):
-        mc_instr |= (0x3 << (31 - 4))
+        mc_instr |= (0x4 << (31 - 4))
     elif ('add' in  opcode):
-        mc_instr |= (0x5 << (31 - 4))
+        mc_instr |= (0x6 << (31 - 4))
     elif ('mul' in  opcode):
-        mc_instr |= (0x7 << (31 - 4))
+        mc_instr |= (0x8 << (31 - 4))
     elif ('and' in  opcode):
-        mc_instr |= (0x9 << (31 - 4))
+        mc_instr |= (0xa << (31 - 4))
     elif ('or' in  opcode):
-        mc_instr |= (0xb << (31 - 4))
+        mc_instr |= (0xc << (31 - 4))
     elif ('shr' in  opcode):
-        mc_instr |= (0xd << (31 - 4))
+        mc_instr |= (0xe << (31 - 4))
     elif ('shl' in  opcode):
-        mc_instr |= (0xf << (31 - 4))
+        mc_instr |= (0x10 << (31 - 4))
 
     if ('b' in data_size):
         mc_instr |= (0x1 << (31 - 15))
@@ -155,7 +155,7 @@ def assemble_form3(asm_tokens, curr_addr, label_table):
         link = 0
     
     if ('b' in opcode):
-        mc_instr |= (0x10 << (31 - 4))
+        mc_instr |= (0x11 << (31 - 4))
 
     if (len(asm_tokens) == 3):
         if (re.search('^-?0b', asm_tokens[2])):
@@ -257,7 +257,7 @@ def assemble_form4(asm_tokens):
 #    print("opcode: %s, imm4: %s" % (opcode, imm4))
     
     if ('sc' in opcode):
-        mc_instr |= (0x11 << (31 - 4))
+        mc_instr |= (0x12 << (31 - 4))
 
     if (imm4 < 0x10):
         mc_instr |= (imm4 << (31 - 19))

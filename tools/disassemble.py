@@ -12,21 +12,21 @@ def disasm_form1(instr):
     data_size = (instr >> (31 - 15)) & 0x03 
 
     asm_instr = ""
-    if (opcode == 0x0):
+    if (opcode == 0x1):
        asm_instr += "ld." 
-    elif (opcode == 0x2):
+    elif (opcode == 0x3):
        asm_instr += "st." 
-    elif (opcode == 0x4):
+    elif (opcode == 0x5):
        asm_instr += "add."
-    elif (opcode == 0x6):
+    elif (opcode == 0x7):
        asm_instr += "mul." 
-    elif (opcode == 0x8):
+    elif (opcode == 0x9):
        asm_instr += "and." 
-    elif (opcode == 0xa):
+    elif (opcode == 0xb):
        asm_instr += "or." 
-    elif (opcode == 0xc):
+    elif (opcode == 0xd):
        asm_instr += "shr." 
-    elif (opcode == 0xe):
+    elif (opcode == 0xf):
        asm_instr += "shl." 
 
     if (data_size == 1):
@@ -53,21 +53,21 @@ def disasm_form2(instr):
     data_size = (instr >> (31 - 15)) & 0x03 
 
     asm_instr = ""
-    if (opcode == 0x1):
+    if (opcode == 0x2):
        asm_instr += "ld." 
-    elif (opcode == 0x3):
+    elif (opcode == 0x4):
        asm_instr += "st." 
-    elif (opcode == 0x5):
+    elif (opcode == 0x6):
        asm_instr += "add." 
-    elif (opcode == 0x7):
+    elif (opcode == 0x8):
        asm_instr += "mul." 
-    elif (opcode == 0x9):
+    elif (opcode == 0xa):
        asm_instr += "and." 
-    elif (opcode == 0xb):
+    elif (opcode == 0xc):
        asm_instr += "or." 
-    elif (opcode == 0xd):
+    elif (opcode == 0xe):
        asm_instr += "shr." 
-    elif (opcode == 0x0f):
+    elif (opcode == 0x10):
        asm_instr += "shl." 
 
     if (data_size == 1):
@@ -94,7 +94,7 @@ def disasm_form3(instr):
     cond_code = (instr >> (31 - 19)) & 0x0f 
 
     asm_instr = ""
-    if (opcode == 0x10):
+    if (opcode == 0x11):
         asm_instr += "b." 
 
     if (link == 1):
@@ -121,7 +121,7 @@ def disasm_form4(instr):
     sc_vector = (instr >> (31 - 19)) & 0x0f 
 
     asm_instr = ""
-    if (opcode == 0x11):
+    if (opcode == 0x12):
         asm_instr += "sc" 
 
     asm_instr += (" " + hex(sc_vector))
