@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
 
 # Check args
-if [ $# -ne 2 ] 
+if [ $# -ne 3 ] 
 then
-    echo "Usage: build_n_run <debug/ndebug> <test case file>"
+    echo "Usage: build_n_run <debug/ndebug> <test case file> <num cycles>"
     exit
 fi
 
 enable_debug=$1;
 bc_asm_file=$2;
+num_cycles=$3;
 bc_mc_file=${bc_asm_file:0:-2}".mc";
 bc_disasm_file=${bc_asm_file:0:-2}".dis";
 
@@ -39,7 +40,8 @@ echo "Building basiccore simulator"
 echo "----------------------------"
 eval "cp Makefile build/"
 eval "cp src/* build/"
-eval "sed -i '/insert program here/ r bc_build/$bc_mc_file' build/main.c"
+eval "sed -i '/insert program here/r bc_build/$bc_mc_file' build/main.c"
+eval "sed -i '/insert num_cycles here/a int num_cycles = $num_cycles;' build/main.c"
 if [ $1 == "ndebug" ] 
 then
     eval "cd build && make"

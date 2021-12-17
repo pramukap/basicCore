@@ -41,9 +41,9 @@ int main() {
     print_context(basic_core, -1);
 
     // run core
-    int num_steps = 20;
+    // insert num_cycles here
     int i = 0;
-    while (i < num_steps) {
+    while (i < num_cycles) {
         basic_core.ir = core_fetch(&basic_core.ip, mem);
         core_decode_execute_complete(&basic_core, mem); 
 
