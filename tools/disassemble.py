@@ -11,33 +11,34 @@ def disasm_form1(instr):
     set_cond_flags = (instr >> (31 - 6)) & 0x01 
     data_size = (instr >> (31 - 15)) & 0x03 
 
+    # print("opcode: 0x%02x" % opcode)
     asm_instr = ""
     if (opcode == 0x1):
-       asm_instr += "ld." 
+        asm_instr += "ld." 
     elif (opcode == 0x3):
-       asm_instr += "st." 
+        asm_instr += "st." 
     elif (opcode == 0x5):
-       asm_instr += "add."
+        asm_instr += "add."
     elif (opcode == 0x7):
-       asm_instr += "mul." 
+        asm_instr += "mul." 
     elif (opcode == 0x9):
-       asm_instr += "and." 
+        asm_instr += "and." 
     elif (opcode == 0xb):
-       asm_instr += "or." 
+        asm_instr += "or." 
     elif (opcode == 0xd):
-       asm_instr += "shr." 
+        asm_instr += "shr." 
     elif (opcode == 0xf):
-       asm_instr += "shl." 
+        asm_instr += "shl." 
 
     if (data_size == 1):
-       asm_instr += "b" 
+        asm_instr += "b" 
     elif (data_size == 2):
-       asm_instr += "h" 
+        asm_instr += "h" 
     elif (data_size == 3):
-       asm_instr += "w" 
+        asm_instr += "w" 
 
     if (set_cond_flags == 1):
-       asm_instr += "s" 
+        asm_instr += "s" 
         
     asm_instr += (" r" + str(regA) + ", r" + str(regB) + ", r" + str(regC))
 
@@ -52,9 +53,10 @@ def disasm_form2(instr):
     set_cond_flags = (instr >> (31 - 6)) & 0x01 
     data_size = (instr >> (31 - 15)) & 0x03 
 
+    # print("opcode: 0x%02x" % opcode)
     asm_instr = ""
     if (opcode == 0x2):
-       asm_instr += "ld." 
+        asm_instr += "ld." 
     elif (opcode == 0x4):
        asm_instr += "st." 
     elif (opcode == 0x6):
@@ -93,6 +95,7 @@ def disasm_form3(instr):
     link = (instr >> (31 - 15)) & 0x01 
     cond_code = (instr >> (31 - 19)) & 0x0f 
 
+    # print("opcode: 0x%02x" % opcode)
     asm_instr = ""
     if (opcode == 0x11):
         asm_instr += "b." 
@@ -194,7 +197,9 @@ while i < len(mc_data):
     if (mc_data[i][1] != addr):
         addr = mc_data[i][1] 
 
-    if ("byte" in mc_data[i][0]):
+    if ("//" in mc_data[i][0]):
+        pass
+    elif ("byte" in mc_data[i][0]):
         byte = mc_data[i][2]
         print("0x%04x: .byte 0x%02x" % (addr, byte)) 
         i += 1
@@ -210,13 +215,13 @@ while i < len(mc_data):
         instr = (mc_data[i][2] << 24) | (mc_data[i + 1][2] << 16) | (mc_data[i + 2][2] << 8) | mc_data[i + 3][2]
         opcode = instr >> (31 - 4)
 
-        if (opcode == 17):
+        if (opcode == 18):
             asm_instr = disasm_form4(instr)            
-        elif (opcode == 16):
+        elif (opcode == 17):
             asm_instr = disasm_form3(instr)            
-        elif ((opcode % 2) == 1 and (opcode >= 0 and opcode <= 15)):
+        elif ((opcode % 2) == 0 and (opcode >= 2 and opcode <= 16)):
             asm_instr = disasm_form2(instr)            
-        elif ((opcode % 2) == 0 and (opcode >= 0 and opcode <= 14)):
+        elif ((opcode % 2) == 1 and (opcode >= 1 and opcode <= 15)):
             asm_instr = disasm_form1(instr)            
 
         print("0x%04x: %s (0x%08x)" % (addr, asm_instr, instr)) 
