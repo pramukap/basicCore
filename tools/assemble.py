@@ -83,21 +83,21 @@ def assemble_form2(asm_tokens, curr_addr, label_table):
 
 #    print("opcode: %s, data_size: %s, set_cond: %d, regA: %s, regB: %s, imm12: %s, label: %s" % (opcode, data_size, set_cond, regA, regB, imm12, label))
 
-    if ('ld' in opcode):
+    if ('ldi' in opcode):
         mc_instr |= (0x2 << (31 - 4))
-    elif ('st' in  opcode):
+    elif ('sti' in  opcode):
         mc_instr |= (0x4 << (31 - 4))
-    elif ('add' in  opcode):
+    elif ('addi' in  opcode):
         mc_instr |= (0x6 << (31 - 4))
-    elif ('mul' in  opcode):
+    elif ('muli' in  opcode):
         mc_instr |= (0x8 << (31 - 4))
-    elif ('and' in  opcode):
+    elif ('andi' in  opcode):
         mc_instr |= (0xa << (31 - 4))
-    elif ('or' in  opcode):
+    elif ('ori' in  opcode):
         mc_instr |= (0xc << (31 - 4))
-    elif ('shr' in  opcode):
+    elif ('shri' in  opcode):
         mc_instr |= (0xe << (31 - 4))
-    elif ('shl' in  opcode):
+    elif ('shli' in  opcode):
         mc_instr |= (0x10 << (31 - 4))
 
     if ('b' in data_size):
@@ -157,6 +157,7 @@ def assemble_form3(asm_tokens, curr_addr, label_table):
     if ('b' in opcode):
         mc_instr |= (0x11 << (31 - 4))
 
+    # reg and offset specified
     if (len(asm_tokens) == 3):
         if (re.search('^-?0b', asm_tokens[2])):
             regA = int(asm_tokens[1][1:-1], 10)
@@ -170,10 +171,16 @@ def assemble_form3(asm_tokens, curr_addr, label_table):
             regA = int(asm_tokens[1][1:-1], 10)
             imm12 = int(re.sub("0x", "", asm_tokens[2]), 16)
             label = 'N/A'
-    else:
+    # label specified
+    elif (len(asm_tokens) == 2):
         regA = 0
         label = asm_tokens[1]
         imm12 = 'N/A'
+    # return branch
+    else:
+        regA = 0
+        imm12 = 0
+        label = 'N/A'
 
     link_and_cond = asm_tokens[0].split('.')[1] 
 
@@ -204,10 +211,23 @@ def assemble_form3(asm_tokens, curr_addr, label_table):
         mc_instr &= ~(0x0f << (31-19))
         mc_instr |= (0x4 << (31-19))
 
+    # link
     if (link):
         mc_instr |= (0x1 << (31-15))
     else:
         mc_instr &= ~(0x1 << (31-15))
+
+    # return
+    if ('r' in asm_tokens[0].split('.')[1]):
+        mc_instr |= (0x1 << (31-13))
+    else:
+        mc_instr &= ~(0x1 << (31-13))
+
+    # change privilege mode
+    if ('p' in asm_tokens[0].split('.')[1]):
+        mc_instr |= (0x1 << (31-14))
+    else:
+        mc_instr &= ~(0x1 << (31-14))
 
     mc_instr |= (regA << (31 - 11))
 
@@ -276,7 +296,7 @@ def assemble_instr(asm_instr, curr_addr, label_table):
     if ((len(asm_tokens) == 2) and (re.search('^0[bdx]', asm_tokens[1]))):
         mc_instr = assemble_form4(asm_tokens)
     # form 3: <op regA, imm12>, <op label>
-    elif ((len(asm_tokens) == 2) or (len(asm_tokens) == 3 and (re.search('-?^0[bdx]', asm_tokens[2])))):
+    elif (len(asm_tokens) == 1 or (len(asm_tokens) == 2) or (len(asm_tokens) == 3 and (re.search('-?^0[bdx]', asm_tokens[2])))):
         mc_instr = assemble_form3(asm_tokens, curr_addr + 4, label_table)
     # form 2: <op regA, regB, imm12>, <op regA, label>
     elif ((len(asm_tokens) == 3) or (len(asm_tokens) == 4 and (re.search('^-?0[bdx]', asm_tokens[3])))):
@@ -394,6 +414,16 @@ while i < len(asm_code):
             program.append((addr + 2, (data >> 8) & 0x0ff))
             program.append((addr + 3, data & 0x0ff))
             addr +=4
+    #psuedo-op
+    elif ('ret' in line or 'rfe' in line):
+        if ('ret' in line): 
+            asm_code[i] = 'b.r'
+        elif ('rfe' in line): 
+            asm_code[i] = 'b.urp'
+        else:
+            pass
+
+        addr += 4
     # instruction
     else:
         addr += 4

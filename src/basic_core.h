@@ -3,12 +3,12 @@
 
 #include "common.h"
 
-#define GPR_FILE_SIZE 16
 typedef struct core_state_type {
     uint32_t ip;
     uint32_t ir;
     uint32_t lr;
-    uint32_t sp;
+    uint32_t usp;
+    uint32_t psp;
     uint32_t msr;
     uint32_t pidr;
     uint32_t gpr_file[GPR_FILE_SIZE];

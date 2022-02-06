@@ -40,6 +40,7 @@ echo "Building basiccore simulator"
 echo "----------------------------"
 eval "cp Makefile build/"
 eval "cp src/* build/"
+# Insert machine code and number of sim-cycles into build/main.c file
 eval "sed -i '/insert program here/r bc_build/$bc_mc_file' build/main.c"
 eval "sed -i '/insert num_cycles here/a int num_cycles = $num_cycles;' build/main.c"
 if [ $1 == "ndebug" ] 

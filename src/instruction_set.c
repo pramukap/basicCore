@@ -346,56 +346,116 @@ void store(uint32_t address, uint8_t *mem, uint32_t data, uint32_t *msr, uint32_
     return; 
 }
 
-void branch(uint32_t condition_code, uint32_t address, uint32_t link, uint32_t msr, uint32_t *ip, uint32_t *lr) {
-    uint32_t eq_flag = (msr >> (31 - 12)) & 0x01;
-    uint32_t neg_flag = (msr >> (31 - 13)) & 0x01;
-    uint32_t pos_flag = (msr >> (31 - 14)) & 0x01;
-    uint32_t of_flag = (msr >> (31 - 15)) & 0x01;
-    
+void branch(uint32_t condition_code, uint32_t address, uint32_t link, uint32_t ret, uint32_t priv_to_user, 
+            uint32_t *msr, uint32_t *ip, uint32_t *lr, uint32_t *usp, uint32_t *pidr, 
+            uint8_t *mem, uint32_t *gpr_file) {
+    uint32_t eq_flag = (*msr >> (31 - 12)) & 0x01;
+    uint32_t neg_flag = (*msr >> (31 - 13)) & 0x01;
+    uint32_t pos_flag = (*msr >> (31 - 14)) & 0x01;
+    uint32_t of_flag = (*msr >> (31 - 15)) & 0x01;
+
     if (link) {
        *lr = *ip; 
     }
 
     switch (condition_code) {
         case UC:
-            *ip = address;
+            if (ret) {
+                *ip = *lr;
+            } else {
+                *ip = address;
+            }
             break;
         case EQ:
             if (eq_flag && !(neg_flag || pos_flag || of_flag)) {
-                *ip = address;
+                if (ret) {
+                    *ip = *lr;
+                } else {
+                    *ip = address;
+                }
             }
             break;
         case NEQ:
             if (!eq_flag && (neg_flag || pos_flag || of_flag)) {
-                *ip = address;
+                if (ret) {
+                    *ip = *lr;
+                } else {
+                    *ip = address;
+                }
             }
             break;
         case GT:
             // result was positive, or the result was so positive that it became negative
             if ((pos_flag && !(eq_flag || neg_flag || of_flag)) 
             || ((neg_flag && of_flag) && !(eq_flag || pos_flag))) {
-                *ip = address;
+                if (ret) {
+                    *ip = *lr;
+                } else {
+                    *ip = address;
+                }
             }
             break;
         case LT:
             // result was negative, or the result was so negative that it became positive
             if ((neg_flag && !(eq_flag || pos_flag || of_flag)) 
             || ((pos_flag && of_flag) && !(eq_flag || neg_flag)) ) {
-                *ip = address;
+                if (ret) {
+                    *ip = *lr;
+                } else {
+                    *ip = address;
+                }
             }
             break;
         default:
             break;
             // invalid condition code error
     }
+
+    // pop user-state off of user-stack
+    if (priv_to_user) {
+        if (((*msr >> (31 - 1)) & 0x1) == PRIV_MODE) {
+            *usp += 4;
+            *msr = READ_WORD(*usp);
+            *usp += 4;
+            *lr =  READ_WORD(*usp);
+            *usp += 4;
+            *pidr =  READ_WORD(*usp);
+            
+            for (int i = GPR_FILE_SIZE - 1; i >= 0; i--) {
+                *usp += 4;
+                gpr_file[i] =  READ_WORD(*usp);
+            }
+
+            // ensure msr is set to user mode
+            *msr &= ~(0x3 << (31 - 1)); 
+            *msr |= (USER_MODE << (31 - 1)); 
+        } // TODO: else trigger exception
+    }
 }
 
-void sys_call(uint32_t sc_vector, uint32_t *ip, uint32_t *lr, uint8_t *mem) {
-    // each vector is a pointer to the vector's handler routine
-    uint32_t sc_vec_handler_offset = sc_vector * 4;
+void sys_call(uint32_t sc_vector, uint32_t *msr, uint32_t *ip, uint32_t *lr, uint32_t *usp, uint32_t *pidr, uint8_t *mem, uint32_t *gpr_file) {
+    // each vector is an index into the sc vector table 
+    uint32_t sc_vec_table_offset = sc_vector << 2;
 
-    // save return point
+    // push user-state to user-stack
+    for (int i = 0; i < GPR_FILE_SIZE; i++){
+        WRITE_WORD(*usp, gpr_file[i]);
+        *usp -= 4;
+    }
+    WRITE_WORD(*usp, *pidr);
+    *usp -= 4;
+    WRITE_WORD(*usp, *lr);
+    *usp -= 4;
+    WRITE_WORD(*usp, *msr);
+    *usp -= 4;
+    
+    // save return address
     *lr = *ip;
-    *ip = (uint32_t)mem[SC_VEC_TBL_BASE + sc_vec_handler_offset];
+    // switch to supervisor mode
+    *msr &= ~(0x3 << (31 - 1)); 
+    *msr |= PRIV_MODE << (31 - 1);
+
+    // the vector table contains the start address of the sc vector handler
+    *ip = (uint32_t)(READ_WORD(SC_VEC_TBL_BASE + sc_vec_table_offset));
 }
 

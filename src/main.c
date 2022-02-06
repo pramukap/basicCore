@@ -11,7 +11,10 @@ void print_context(core_state core, int curr_step) {
         printf("\tIP: 0x%08X ", core.ip);
         printf("IR: 0x%08X ", core.ir);
         printf("LR: 0x%08X ", core.lr);
-        printf("MSR: 0x%08X\n\t", core.msr);
+        printf("MSR: 0x%08X ", core.msr);
+        printf("USP: 0x%08X ", core.usp);
+        printf("PSP: 0x%08X ", core.psp);
+        printf("PIDR: 0x%08X\n\t", core.pidr);
 
         for (int i = 0; i < GPR_FILE_SIZE; i++) {
             printf("GPR %02i: 0x%08X ", i, core.gpr_file[i]);
@@ -27,7 +30,8 @@ int main() {
     basic_core.ip = 0x0;
     basic_core.ir = 0x0;
     basic_core.lr = 0x0;
-    basic_core.sp = 0x0;
+    basic_core.usp = 0x1000;
+    basic_core.psp = 0x2000;
     basic_core.msr = 0x0;
     basic_core.pidr = 0x0;
     
@@ -51,6 +55,7 @@ int main() {
 
         i++;
     }    
+
     return 0;
 }
 

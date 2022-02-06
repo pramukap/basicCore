@@ -56,21 +56,21 @@ def disasm_form2(instr):
     # print("opcode: 0x%02x" % opcode)
     asm_instr = ""
     if (opcode == 0x2):
-        asm_instr += "ld." 
+        asm_instr += "ldi." 
     elif (opcode == 0x4):
-       asm_instr += "st." 
+       asm_instr += "sti." 
     elif (opcode == 0x6):
-       asm_instr += "add." 
+       asm_instr += "addi." 
     elif (opcode == 0x8):
-       asm_instr += "mul." 
+       asm_instr += "muli." 
     elif (opcode == 0xa):
-       asm_instr += "and." 
+       asm_instr += "andi." 
     elif (opcode == 0xc):
-       asm_instr += "or." 
+       asm_instr += "ori." 
     elif (opcode == 0xe):
-       asm_instr += "shr." 
+       asm_instr += "shri." 
     elif (opcode == 0x10):
-       asm_instr += "shl." 
+       asm_instr += "shli." 
 
     if (data_size == 1):
        asm_instr += "b" 
@@ -92,6 +92,8 @@ def disasm_form3(instr):
     regA = (instr >> (31 - 11)) & 0x0f
     imm12 = (instr >> (31 - 31)) & 0x0fff
     uncond_br = (instr >> (31 - 6)) & 0x01 
+    ret = (instr >> (31 - 13)) & 0x01 
+    priv_to_user = (instr >> (31 - 14)) & 0x01 
     link = (instr >> (31 - 15)) & 0x01 
     cond_code = (instr >> (31 - 19)) & 0x0f 
 
@@ -102,8 +104,14 @@ def disasm_form3(instr):
 
     if (link == 1):
         asm_instr += "l"     
+    
+    if (ret == 1):
+        asm_instr += "r"
 
-    if (cond_code == 0):
+    if (priv_to_user == 1):
+        asm_instr += "p"
+
+    if (cond_code == 0 and uncond_br == 1):
         asm_instr += "u" 
     elif (cond_code == 1):
         asm_instr += "e" 
@@ -223,6 +231,8 @@ while i < len(mc_data):
             asm_instr = disasm_form2(instr)            
         elif ((opcode % 2) == 1 and (opcode >= 1 and opcode <= 15)):
             asm_instr = disasm_form1(instr)            
+        else:
+            print("Error: Bad opcode")
 
         print("0x%04x: %s (0x%08x)" % (addr, asm_instr, instr)) 
         i += 4
